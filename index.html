@@ -312,6 +312,61 @@
             margin-left: 8px;
         }
 
+        /* ── ARTPORTALEN TOGGLE ── */
+        .ap-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .ap-toggle input[type="checkbox"] {
+            display: none;
+        }
+
+        .ap-track {
+            width: 36px;
+            height: 20px;
+            border-radius: 10px;
+            background: #ccc;
+            position: relative;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .ap-track::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.2s;
+        }
+
+        .ap-toggle input:checked+.ap-track {
+            background: #1976d2;
+        }
+
+        .ap-toggle input:checked+.ap-track::after {
+            transform: translateX(16px);
+        }
+
+        .ap-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .ap-toggle input:checked~.ap-label {
+            color: #1976d2;
+        }
+
         /* ── ADD SPECIES ── */
         .add-section {
             padding: 10px 12px;
@@ -618,6 +673,11 @@
         </div>
         <div class="meta-field"><label>Noteringar</label><textarea id="notesField"
                 placeholder="Temperatur, sällskap, platser ..."></textarea></div>
+        <label class="ap-toggle">
+            <input type="checkbox" id="apToggle">
+            <div class="ap-track"></div>
+            <span class="ap-label">Rapportera till Artportalen</span>
+        </label>
     </div>
 
     <div class="search-bar">
@@ -1229,6 +1289,7 @@
                 date: document.getElementById('dateField').value,
                 location: document.getElementById('locField').value.trim() || 'Okänd',
                 notes: document.getElementById('notesField').value.trim(),
+                artportalen: document.getElementById('apToggle').checked,
                 species: [],
                 source: 'faltlistan'
             };
@@ -1260,6 +1321,7 @@
                     date: document.getElementById('dateField').value,
                     location: document.getElementById('locField').value,
                     notes: document.getElementById('notesField').value,
+                    ap: document.getElementById('apToggle').checked,
                     ts: Date.now()
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
@@ -1288,6 +1350,7 @@
                 if (draft.date) document.getElementById('dateField').value = draft.date;
                 if (draft.location) document.getElementById('locField').value = draft.location;
                 if (draft.notes) document.getElementById('notesField').value = draft.notes;
+                if (draft.ap) document.getElementById('apToggle').checked = true;
                 // Update visuals
                 Object.keys(D).forEach(idx => {
                     const el = document.getElementById('sp-' + idx);
@@ -1306,6 +1369,7 @@
             document.getElementById(id).addEventListener('change', saveDraft);
             document.getElementById(id).addEventListener('input', saveDraft);
         });
+        document.getElementById('apToggle').addEventListener('change', saveDraft);
     </script>
 </body>
 
