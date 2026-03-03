@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Fältlistan — Digital Krysslista</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --bg-checked: #d4edda;
+            --accent: #2e7d56;
+            --text: #1a1a1a;
+            --text-muted: #888;
+            --border: #d0d0d0;
+            --border-light: #e8e8e8;
+            --radius: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: #fff;
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 70px;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            padding: 14px 12px 10px;
+            border-bottom: 2px solid var(--text);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #fff;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .header h1 span {
+            font-weight: 300;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-left: 6px;
+        }
+
+        .meta-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .meta-field {
+            flex: 1;
+        }
+
+        .meta-field label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .meta-field input,
+        .meta-field textarea {
+            width: 100%;
+            padding: 5px 7px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.82rem;
+        }
+
+        .meta-field textarea {
+            height: 32px;
+            resize: vertical;
+        }
+
+        .meta-field input:focus,
+        .meta-field textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* ── SEARCH ── */
+        .search-bar {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 108px;
+            z-index: 99;
+            background: #fff;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            background: #f8f8f8;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        .filter-btn {
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: #fff;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* ── SPECIES GRID ── */
+        .group-section {
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .group-header {
+            padding: 6px 12px 3px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            background: #f5f7f5;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .species-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            padding: 0;
+        }
+
+        @media (min-width: 600px) {
+            .species-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 900px) {
+            .species-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .sp {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 8px;
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: background 0.12s;
+            min-height: 38px;
+        }
+
+        .sp:active {
+            background: #eee;
+        }
+
+        .sp.checked {
+            background: var(--bg-checked);
+        }
+
+        .sp.has-comment {
+            border-left: 3px solid var(--accent);
+            padding-left: 5px;
+        }
+
+        .sp.hidden {
+            display: none;
+        }
+
+        .sp-box {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            border: 1.5px solid var(--border);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s;
+        }
+
+        .sp.checked .sp-box {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .sp-box svg {
+            width: 10px;
+            height: 10px;
+            color: #fff;
+            opacity: 0;
+        }
+
+        .sp.checked .sp-box svg {
+            opacity: 1;
+        }
+
+        .sp-name {
+            font-size: 0.78rem;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .sp.checked .sp-name {
+            font-weight: 500;
+        }
+
+        .sp-flag {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #e65100;
+            background: #fff3e0;
+            padding: 1px 4px;
+            border-radius: 3px;
+            flex-shrink: 0;
+            display: none;
+        }
+
+        .sp.has-flag .sp-flag {
+            display: inline;
+        }
+
+        .sp-comment-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+            display: none;
+        }
+
+        .sp.has-comment .sp-comment-dot {
+            display: block;
+        }
+
+        /* ── NO RESULTS ── */
+        .no-results {
+            display: none;
+            padding: 16px 12px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .no-results.visible {
+            display: block;
+        }
+
+        .no-results button {
+            margin-top: 6px;
+            padding: 6px 16px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ── SAVED STATUS ── */
+        .saved-status {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: 8px;
+        }
+
+        /* ── ADD SPECIES ── */
+        .add-section {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-section input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.82rem;
+        }
+
+        .add-section button {
+            padding: 6px 14px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 12px;
+            background: #fff;
+            border-top: 2px solid var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 200;
+        }
+
+        .footer-count {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .footer-count strong {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .gen-btn {
+            padding: 8px 22px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .gen-btn:disabled {
+            background: #ccc;
+            cursor: default;
+        }
+
+        /* ── COMMENT MODAL (small) ── */
+        .cm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 300;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .cm-overlay.visible {
+            display: flex;
+        }
+
+        .cm {
+            background: #fff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 14px 14px 0 0;
+            padding: 16px 16px 24px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .cm h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .cm .cm-latin {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        .cm-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .cm-row label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            width: 50px;
+            flex-shrink: 0;
+        }
+
+        .cm-row input,
+        .cm-row textarea {
+            flex: 1;
+            padding: 7px 9px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+
+        .cm-row input:focus,
+        .cm-row textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .cm-row input[type="number"] {
+            width: 70px;
+            flex: unset;
+        }
+
+        .cm-flags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .cm-flag {
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: #fff;
+            color: var(--text-muted);
+        }
+
+        .cm-flag.active {
+            background: #fff3e0;
+            border-color: #ff9800;
+            color: #e65100;
+        }
+
+        .cm-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            justify-content: flex-end;
+        }
+
+        .cm-btn {
+            padding: 8px 18px;
+            border-radius: 18px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cm-btn.save {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+        }
+
+        .cm-btn.cancel {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .cm-btn.uncheck {
+            background: transparent;
+            color: #c62828;
+            border: 1px solid #c62828;
+            margin-right: auto;
+        }
+
+        /* ── JSON MODAL ── */
+        .jm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 400;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .jm-overlay.visible {
+            display: flex;
+        }
+
+        .jm {
+            background: #fff;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 560px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .jm-head {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .jm-head h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .jm-close {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: #eee;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .jm-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 16px;
+        }
+
+        .jm-body pre {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.72rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-all;
+            background: #f5f5f5;
+            padding: 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+        }
+
+        .jm-foot {
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .copy-ok {
+            display: none;
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .copy-ok.visible {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Fältlistan <span>Sverigelistan · 300 arter</span></h1>
+        <div class="meta-row">
+            <div class="meta-field"><label>Datum</label><input type="date" id="dateField"></div>
+            <div class="meta-field"><label>Lokal / Exkursion</label><input type="text" id="locField"
+                    placeholder="t.ex. Åstorps kommun"></div>
+        </div>
+        <div class="meta-field"><label>Noteringar</label><textarea id="notesField"
+                placeholder="Temperatur, sällskap, platser ..."></textarea></div>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="searchField" placeholder="Sök art ...">
+        <div class="filter-btn active" data-f="all" onclick="setFilter('all',this)">Alla</div>
+        <div class="filter-btn" data-f="checked" onclick="setFilter('checked',this)">✓</div>
+    </div>
+
+    <div id="listContainer"></div>
+
+    <div class="no-results" id="noResults">
+        Hittade ingen art.
+        <br><button id="noResAdd" onclick="addFromSearch()">+ Lägg till "<span id="noResTerm"></span>"</button>
+    </div>
+
+    <div class="add-section">
+        <input type="text" id="addInput" placeholder="Lägg till art som saknas ...">
+        <button onclick="addCustom()">+ Lägg till</button>
+    </div>
+
+    <div class="footer">
+        <div class="footer-count"><strong id="cnt">0</strong> arter kryssade <span class="saved-status"
+                id="savedStatus"></span></div>
+        <button class="gen-btn" id="genBtn" onclick="showJSON()" disabled>Generera</button>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="cm-overlay" id="cmOverlay" onclick="if(event.target===this)closeCM()">
+        <div class="cm">
+            <h3 id="cmName"></h3>
+            <div class="cm-latin" id="cmLatin"></div>
+            <div class="cm-row">
+                <label>Antal</label>
+                <input type="number" id="cmCount" min="1" value="1">
+                <div style="flex:1"></div>
+                <div class="cm-flags">
+                    <div class="cm-flag" id="cmFlagAK" onclick="toggleCMFlag('Årskryss',this)">⭐ Årskryss</div>
+                </div>
+            </div>
+            <div class="cm-row">
+                <label>Komm.</label>
+                <input type="text" id="cmComment" placeholder="Kön, ålder, lokal, beteende ...">
+            </div>
+            <div class="cm-actions">
+                <button class="cm-btn uncheck" id="cmUncheck" onclick="uncheckFromCM()">Avkryssa</button>
+                <button class="cm-btn cancel" onclick="closeCM()">Avbryt</button>
+                <button class="cm-btn save" onclick="saveCM()">Spara</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JSON Modal -->
+    <div class="jm-overlay" id="jmOverlay" onclick="if(event.target===this)closeJM()">
+        <div class="jm">
+            <div class="jm-head">
+                <h2>Exporterad artlista</h2><button class="jm-close" onclick="closeJM()">×</button>
+            </div>
+            <div class="jm-body">
+                <pre id="jsonOut"></pre>
+            </div>
+            <div class="jm-foot">
+                <span class="copy-ok" id="copyOk">✓ Kopierat!</span>
+                <button class="cm-btn cancel" onclick="closeJM()">Stäng</button>
+                <button class="cm-btn save" onclick="copyJSON()">📋 Kopiera</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const S = [
+            // ── Gäss & Svanar ──
+            { g: "Gäss & Svanar", n: "Prutgås", l: "Branta bernicla" },
+            { n: "Rödhalsad gås", l: "Branta ruficollis" },
+            { n: "Kanadagås", l: "Branta canadensis" },
+            { n: "Vitkindad gås", l: "Branta leucopsis" },
+            { n: "Stripgås", l: "Anser indicus" },
+            { n: "Grågås", l: "Anser anser" },
+            { n: "Sädgås", l: "Anser fabalis" },
+            { n: "Spetsbergsgås", l: "Anser brachyrhynchus" },
+            { n: "Bläsgås", l: "Anser albifrons" },
+            { n: "Fjällgås", l: "Anser erythropus" },
+            { n: "Knölsvan", l: "Cygnus olor" },
+            { n: "Mindre sångsvan", l: "Cygnus columbianus" },
+            { n: "Sångsvan", l: "Cygnus cygnus" },
+            // ── Änder ──
+            { g: "Änder", n: "Gravand", l: "Tadorna tadorna" },
+            { n: "Rostand", l: "Tadorna ferruginea" },
+            { n: "Årta", l: "Spatula querquedula" },
+            { n: "Skedand", l: "Spatula clypeata" },
+            { n: "Snatterand", l: "Mareca strepera" },
+            { n: "Bläsand", l: "Mareca penelope" },
+            { n: "Gräsand", l: "Anas platyrhynchos" },
+            { n: "Stjärtand", l: "Anas acuta" },
+            { n: "Kricka", l: "Anas crecca" },
+            { n: "Brunand", l: "Aythya ferina" },
+            { n: "Vigg", l: "Aythya fuligula" },
+            { n: "Bergand", l: "Aythya marila" },
+            { n: "Alförrädare", l: "Polysticta stelleri" },
+            { n: "Praktejder", l: "Somateria spectabilis" },
+            { n: "Ejder", l: "Somateria mollissima" },
+            { n: "Svärta", l: "Melanitta fusca" },
+            { n: "Sjöorre", l: "Melanitta nigra" },
+            { n: "Alfågel", l: "Clangula hyemalis" },
+            { n: "Knipa", l: "Bucephala clangula" },
+            { n: "Salskrake", l: "Mergellus albellus" },
+            { n: "Storskrake", l: "Mergus merganser" },
+            { n: "Småskrake", l: "Mergus serrator" },
+            // ── Hönsfåglar ──
+            { g: "Hönsfåglar", n: "Fasan", l: "Phasianus colchicus" },
+            { n: "Rapphöna", l: "Perdix perdix" },
+            { n: "Vaktel", l: "Coturnix coturnix" },
+            { n: "Järpe", l: "Tetrastes bonasia" },
+            { n: "Tjäder", l: "Tetrao urogallus" },
+            { n: "Orre", l: "Lyrurus tetrix" },
+            { n: "Dalripa", l: "Lagopus lagopus" },
+            { n: "Fjällripa", l: "Lagopus muta" },
+            // ── Doppingar ──
+            { g: "Doppingar", n: "Smådopping", l: "Tachybaptus ruficollis" },
+            { n: "Skäggdopping", l: "Podiceps cristatus" },
+            { n: "Gråhakedopping", l: "Podiceps grisegena" },
+            { n: "Svarthakedopping", l: "Podiceps auritus" },
+            { n: "Svarthalsad dopping", l: "Podiceps nigricollis" },
+            // ── Duvor ──
+            { g: "Duvor", n: "Tamduva", l: "Columba livia" },
+            { n: "Skogsduva", l: "Columba oenas" },
+            { n: "Ringduva", l: "Columba palumbus" },
+            { n: "Turturduva", l: "Streptopelia turtur" },
+            { n: "Turkduva", l: "Streptopelia decaocto" },
+            // ── Nattskärror & Seglare & Gökar ──
+            { g: "Nattskärror · Seglare · Gökar", n: "Nattskärra", l: "Caprimulgus europaeus" },
+            { n: "Tornseglare", l: "Apus apus" },
+            { n: "Gök", l: "Cuculus canorus" },
+            // ── Rallar ──
+            { g: "Rallar", n: "Vattenrall", l: "Rallus aquaticus" },
+            { n: "Kornknarr", l: "Crex crex" },
+            { n: "Småfläckig sumphöna", l: "Zapornia parva" },
+            { n: "Rörhöna", l: "Gallinula chloropus" },
+            { n: "Sothöna", l: "Fulica atra" },
+            // ── Tranor ──
+            { g: "Tranor", n: "Trana", l: "Grus grus" },
+            // ── Vadare ──
+            { g: "Vadare", n: "Strandskata", l: "Haematopus ostralegus" },
+            { n: "Skärfläcka", l: "Recurvirostra avosetta" },
+            { n: "Tofsvipa", l: "Vanellus vanellus" },
+            { n: "Ljungpipare", l: "Pluvialis apricaria" },
+            { n: "Kustpipare", l: "Pluvialis squatarola" },
+            { n: "Större strandpipare", l: "Charadrius hiaticula" },
+            { n: "Mindre strandpipare", l: "Charadrius dubius" },
+            { n: "Svartbent strandpipare", l: "Charadrius alexandrinus" },
+            { n: "Fjällpipare", l: "Eudromias morinellus" },
+            { n: "Småspov", l: "Numenius phaeopus" },
+            { n: "Storspov", l: "Numenius arquata" },
+            { n: "Myrspov", l: "Limosa lapponica" },
+            { n: "Rödspov", l: "Limosa limosa" },
+            { n: "Roskarl", l: "Arenaria interpres" },
+            { n: "Kustsnäppa", l: "Calidris canutus" },
+            { n: "Brushane", l: "Calidris pugnax" },
+            { n: "Myrsnäppa", l: "Calidris falcinellus" },
+            { n: "Spovsnäppa", l: "Calidris ferruginea" },
+            { n: "Mosnäppa", l: "Calidris temminckii" },
+            { n: "Sandlöpare", l: "Calidris alba" },
+            { n: "Kärrsnäppa", l: "Calidris alpina" },
+            { n: "Skärsnäppa", l: "Calidris maritima" },
+            { n: "Småsnäppa", l: "Calidris minuta" },
+            { n: "Tuvsnäppa", l: "Calidris melanotos" },
+            { n: "Morkulla", l: "Scolopax rusticola" },
+            { n: "Dvärgbeckasin", l: "Lymnocryptes minimus" },
+            { n: "Dubbelbeckasin", l: "Gallinago media" },
+            { n: "Enkelbeckasin", l: "Gallinago gallinago" },
+            { n: "Smalsnäppa", l: "Phalaropus lobatus" },
+            { n: "Brednäbbad simsnäppa", l: "Phalaropus fulicarius" },
+            { n: "Drillsnäppa", l: "Actitis hypoleucos" },
+            { n: "Skogssnäppa", l: "Tringa ochropus" },
+            { n: "Rödbena", l: "Tringa totanus" },
+            { n: "Dammsnäppa", l: "Tringa stagnatilis" },
+            { n: "Grönbena", l: "Tringa glareola" },
+            { n: "Svartsnäppa", l: "Tringa erythropus" },
+            { n: "Gluttsnäppa", l: "Tringa nebularia" },
+            // ── Måsar & Trutar ──
+            { g: "Måsar & Trutar", n: "Tretåig mås", l: "Rissa tridactyla" },
+            { n: "Tärnmås", l: "Xema sabini" },
+            { n: "Skrattmås", l: "Chroicocephalus ridibundus" },
+            { n: "Dvärgmås", l: "Hydrocoloeus minutus" },
+            { n: "Svarthuvad mås", l: "Ichthyaetus melanocephalus" },
+            { n: "Fiskmås", l: "Larus canus" },
+            { n: "Havstrut", l: "Larus marinus" },
+            { n: "Vittrut", l: "Larus hyperboreus" },
+            { n: "Vitvingad trut", l: "Larus glaucoides" },
+            { n: "Gråtrut", l: "Larus argentatus" },
+            { n: "Kaspisk trut", l: "Larus cachinnans" },
+            { n: "Medelhavstrut", l: "Larus michahellis" },
+            { n: "Silltrut", l: "Larus fuscus" },
+            // ── Tärnor ──
+            { g: "Tärnor", n: "Skräntärna", l: "Hydroprogne caspia" },
+            { n: "Kentsk tärna", l: "Thalasseus sandvicensis" },
+            { n: "Småtärna", l: "Sternula albifrons" },
+            { n: "Fisktärna", l: "Sterna hirundo" },
+            { n: "Silvertärna", l: "Sterna paradisaea" },
+            { n: "Vitvingad tärna", l: "Chlidonias leucopterus" },
+            { n: "Svarttärna", l: "Chlidonias niger" },
+            // ── Labbar ──
+            { g: "Labbar", n: "Storlabb", l: "Stercorarius skua" },
+            { n: "Bredstjärtad labb", l: "Stercorarius pomarinus" },
+            { n: "Kustlabb", l: "Stercorarius parasiticus" },
+            { n: "Fjällabb", l: "Stercorarius longicaudus" },
+            // ── Alkfåglar ──
+            { g: "Alkfåglar", n: "Alkekung", l: "Alle alle" },
+            { n: "Sillgrissla", l: "Uria aalge" },
+            { n: "Tordmule", l: "Alca torda" },
+            { n: "Tobisgrissla", l: "Cepphus grylle" },
+            { n: "Lunnefågel", l: "Fratercula arctica" },
+            // ── Lommar ──
+            { g: "Lommar", n: "Smålom", l: "Gavia stellata" },
+            { n: "Storlom", l: "Gavia arctica" },
+            { n: "Svartnäbbad islom", l: "Gavia immer" },
+            { n: "Vitnäbbad islom", l: "Gavia adamsii" },
+            // ── Havsfåglar ──
+            { g: "Havsfåglar", n: "Klykstjärtad stormsvala", l: "Oceanodroma leucorhoa" },
+            { n: "Stormfågel", l: "Fulmarus glacialis" },
+            { n: "Grålira", l: "Puffinus griseus" },
+            { n: "Mindre lira", l: "Puffinus puffinus" },
+            // ── Storkar ──
+            { g: "Storkar", n: "Svart stork", l: "Ciconia nigra" },
+            { n: "Vit stork", l: "Ciconia ciconia" },
+            // ── Sulor & Skarvar ──
+            { g: "Sulor · Skarvar · Hägrar", n: "Havssula", l: "Morus bassanus" },
+            { n: "Storskarv", l: "Phalacrocorax carbo" },
+            { n: "Toppskarv", l: "Gulosus aristotelis" },
+            { n: "Rördrom", l: "Botaurus stellaris" },
+            { n: "Gråhäger", l: "Ardea cinerea" },
+            { n: "Ägretthäger", l: "Ardea alba" },
+            { n: "Silkeshäger", l: "Egretta garzetta" },
+            // ── Rovfåglar ──
+            { g: "Rovfåglar", n: "Fiskgjuse", l: "Pandion haliaetus" },
+            { n: "Bivråk", l: "Pernis apivorus" },
+            { n: "Kungsörn", l: "Aquila chrysaetos" },
+            { n: "Sparvhök", l: "Accipiter nisus" },
+            { n: "Duvhök", l: "Accipiter gentilis" },
+            { n: "Brun kärrhök", l: "Circus aeruginosus" },
+            { n: "Blå kärrhök", l: "Circus cyaneus" },
+            { n: "Ängshök", l: "Circus pygargus" },
+            { n: "Röd glada", l: "Milvus milvus" },
+            { n: "Brun glada", l: "Milvus migrans" },
+            { n: "Havsörn", l: "Haliaeetus albicilla" },
+            { n: "Fjällvråk", l: "Buteo lagopus" },
+            { n: "Ormvråk", l: "Buteo buteo" },
+            // ── Ugglor ──
+            { g: "Ugglor", n: "Berguv", l: "Bubo bubo" },
+            { n: "Kattuggla", l: "Strix aluco" },
+            { n: "Slaguggla", l: "Strix uralensis" },
+            { n: "Lappuggla", l: "Strix nebulosa" },
+            { n: "Hökuggla", l: "Surnia ulula" },
+            { n: "Sparvuggla", l: "Glaucidium passerinum" },
+            { n: "Pärlugla", l: "Aegolius funereus" },
+            { n: "Hornuggla", l: "Asio otus" },
+            { n: "Jorduggla", l: "Asio flammeus" },
+            // ── Kungsfiskare · Härfågel · Biätare ──
+            { g: "Kungsfiskare · Härfågel", n: "Härfågel", l: "Upupa epops" },
+            { n: "Kungsfiskare", l: "Alcedo atthis" },
+            { n: "Biätare", l: "Merops apiaster" },
+            // ── Hackspettar ──
+            { g: "Hackspettar", n: "Göktyta", l: "Jynx torquilla" },
+            { n: "Tretåig hackspett", l: "Picoides tridactylus" },
+            { n: "Mindre hackspett", l: "Dryobates minor" },
+            { n: "Större hackspett", l: "Dendrocopos major" },
+            { n: "Vitryggig hackspett", l: "Dendrocopos leucotos" },
+            { n: "Spillkråka", l: "Dryocopus martius" },
+            { n: "Gröngöling", l: "Picus viridis" },
+            { n: "Gråspett", l: "Picus canus" },
+            // ── Falkar ──
+            { g: "Falkar", n: "Tornfalk", l: "Falco tinnunculus" },
+            { n: "Aftonfalk", l: "Falco vespertinus" },
+            { n: "Stenfalk", l: "Falco columbarius" },
+            { n: "Lärkfalk", l: "Falco subbuteo" },
+            { n: "Jaktfalk", l: "Falco rusticolus" },
+            { n: "Pilgrimsfalk", l: "Falco peregrinus" },
+            // ── Törnskator ──
+            { g: "Törnskator", n: "Törnskata", l: "Lanius collurio" },
+            { n: "Varfågel", l: "Lanius excubitor" },
+            // ── Kråkfåglar ──
+            { g: "Kråkfåglar", n: "Sommargylling", l: "Oriolus oriolus" },
+            { n: "Lavskrika", l: "Perisoreus infaustus" },
+            { n: "Nötskrika", l: "Garrulus glandarius" },
+            { n: "Skata", l: "Pica pica" },
+            { n: "Nötkråka", l: "Nucifraga caryocatactes" },
+            { n: "Kaja", l: "Coloeus monedula" },
+            { n: "Råka", l: "Corvus frugilegus" },
+            { n: "Kråka", l: "Corvus cornix" },
+            { n: "Korp", l: "Corvus corax" },
+            // ── Mesar ──
+            { g: "Mesar & Svansar", n: "Stjärtmes", l: "Aegithalos caudatus" },
+            { n: "Sidensvans", l: "Bombycilla garrulus" },
+            { n: "Svartmes", l: "Periparus ater" },
+            { n: "Tofsmes", l: "Lophophanes cristatus" },
+            { n: "Entita", l: "Poecile palustris" },
+            { n: "Talltita", l: "Poecile montanus" },
+            { n: "Lappmes", l: "Poecile cinctus" },
+            { n: "Blåmes", l: "Cyanistes caeruleus" },
+            { n: "Talgoxe", l: "Parus major" },
+            { n: "Pungmes", l: "Remiz pendulinus" },
+            { n: "Skäggmes", l: "Panurus biarmicus" },
+            // ── Lärkor ──
+            { g: "Lärkor", n: "Trädlärka", l: "Lullula arborea" },
+            { n: "Sånglärka", l: "Alauda arvensis" },
+            { n: "Tofslärka", l: "Galerida cristata" },
+            { n: "Berglärka", l: "Eremophila alpestris" },
+            // ── Svalor ──
+            { g: "Svalor", n: "Backsvala", l: "Riparia riparia" },
+            { n: "Ladusvala", l: "Hirundo rustica" },
+            { n: "Hussvala", l: "Delichon urbicum" },
+            { n: "Rostgumpsvala", l: "Cecropis daurica" },
+            // ── Sångare ──
+            { g: "Sångare", n: "Höksångare", l: "Curruca nisoria" },
+            { n: "Ärtsångare", l: "Curruca curruca" },
+            { n: "Törnsångare", l: "Curruca communis" },
+            { n: "Svarthätta", l: "Sylvia atricapilla" },
+            { n: "Trädgårdssångare", l: "Sylvia borin" },
+            { n: "Grönsångare", l: "Phylloscopus sibilatrix" },
+            { n: "Taigasångare", l: "Phylloscopus inornatus" },
+            { n: "Kungsfågelsångare", l: "Phylloscopus proregulus" },
+            { n: "Lövsångare", l: "Phylloscopus trochilus" },
+            { n: "Gransångare", l: "Phylloscopus collybita" },
+            { n: "Lundsångare", l: "Phylloscopus trochiloides" },
+            { n: "Nordsångare", l: "Phylloscopus borealis" },
+            { n: "Trastsångare", l: "Acrocephalus arundinaceus" },
+            { n: "Sävsångare", l: "Acrocephalus schoenobaenus" },
+            { n: "Busksångare", l: "Acrocephalus dumetorum" },
+            { n: "Rörsångare", l: "Acrocephalus scirpaceus" },
+            { n: "Kärrsångare", l: "Acrocephalus palustris" },
+            { n: "Härmsångare", l: "Hippolais icterina" },
+            { n: "Flodsångare", l: "Locustella fluviatilis" },
+            { n: "Vassångare", l: "Locustella luscinioides" },
+            { n: "Gräshoppsångare", l: "Locustella naevia" },
+            // ── Kungsfåglar ──
+            { g: "Kungsfåglar", n: "Brandkronad kungsfågel", l: "Regulus ignicapilla" },
+            { n: "Kungsfågel", l: "Regulus regulus" },
+            // ── Nötväckor & Trädkrypare ──
+            { g: "Nötväcka · Trädkrypare · Gärdsmyg", n: "Gärdsmyg", l: "Troglodytes troglodytes" },
+            { n: "Nötväcka", l: "Sitta europaea" },
+            { n: "Trädkrypare", l: "Certhia familiaris" },
+            // ── Stare ──
+            { g: "Starar", n: "Stare", l: "Sturnus vulgaris" },
+            // ── Trastar ──
+            { g: "Trastar", n: "Ringtrast", l: "Turdus torquatus" },
+            { n: "Koltrast", l: "Turdus merula" },
+            { n: "Björktrast", l: "Turdus pilaris" },
+            { n: "Rödvingetrast", l: "Turdus iliacus" },
+            { n: "Taltrast", l: "Turdus philomelos" },
+            { n: "Dubbeltrast", l: "Turdus viscivorus" },
+            // ── Flugsnappare & Chats ──
+            { g: "Flugsnappare · Näktergalar", n: "Grå flugsnappare", l: "Muscicapa striata" },
+            { n: "Rödhake", l: "Erithacus rubecula" },
+            { n: "Blåhake", l: "Luscinia svecica" },
+            { n: "Näktergal", l: "Luscinia luscinia" },
+            { n: "Svartvit flugsnappare", l: "Ficedula hypoleuca" },
+            { n: "Halsbandsflugsnappare", l: "Ficedula albicollis" },
+            { n: "Mindre flugsnappare", l: "Ficedula parva" },
+            { n: "Svart rödstjärt", l: "Phoenicurus ochruros" },
+            { n: "Rödstjärt", l: "Phoenicurus phoenicurus" },
+            { n: "Buskskvätta", l: "Saxicola rubetra" },
+            { n: "Svarthakad buskskvätta", l: "Saxicola rubicola" },
+            { n: "Stenskvätta", l: "Oenanthe oenanthe" },
+            // ── Strömstare ──
+            { g: "Strömstarar", n: "Strömstare", l: "Cinclus cinclus" },
+            // ── Sparvar ──
+            { g: "Sparvar", n: "Gråsparv", l: "Passer domesticus" },
+            { n: "Pilfink", l: "Passer montanus" },
+            // ── Ärlor & Piplärkor ──
+            { g: "Ärlor & Piplärkor", n: "Järnsparv", l: "Prunella modularis" },
+            { n: "Gulärla", l: "Motacilla flava" },
+            { n: "Citronärla", l: "Motacilla citreola" },
+            { n: "Forsärla", l: "Motacilla cinerea" },
+            { n: "Sädesärla", l: "Motacilla alba" },
+            { n: "Större piplärka", l: "Anthus richardi" },
+            { n: "Fältpiplärka", l: "Anthus campestris" },
+            { n: "Ängspiplärka", l: "Anthus pratensis" },
+            { n: "Trädpiplärka", l: "Anthus trivialis" },
+            { n: "Rödstrupig piplärka", l: "Anthus cervinus" },
+            { n: "Vattenpiplärka", l: "Anthus spinoletta" },
+            { n: "Skärpiplärka", l: "Anthus petrosus" },
+            // ── Finkar ──
+            { g: "Finkar", n: "Bofink", l: "Fringilla coelebs" },
+            { n: "Bergfink", l: "Fringilla montifringilla" },
+            { n: "Stenknäck", l: "Coccothraustes coccothraustes" },
+            { n: "Tallbit", l: "Pinicola enucleator" },
+            { n: "Domherre", l: "Pyrrhula pyrrhula" },
+            { n: "Rosenfink", l: "Carpodacus erythrinus" },
+            { n: "Grönfink", l: "Chloris chloris" },
+            { n: "Vinterhämpling", l: "Linaria flavirostris" },
+            { n: "Hämpling", l: "Linaria cannabina" },
+            { n: "Gråsiska", l: "Acanthis flammea" },
+            { n: "Snösiska", l: "Acanthis hornemanni" },
+            { n: "Större korsnäbb", l: "Loxia pytyopsittacus" },
+            { n: "Mindre korsnäbb", l: "Loxia curvirostra" },
+            { n: "Bändelkorsnäbb", l: "Loxia leucoptera" },
+            { n: "Steglits", l: "Carduelis carduelis" },
+            { n: "Gulhämpling", l: "Serinus serinus" },
+            { n: "Grönsiska", l: "Spinus spinus" },
+            // ── Fältsparvfåglar ──
+            { g: "Fältsparvfåglar", n: "Lappsparv", l: "Calcarius lapponicus" },
+            { n: "Snösparv", l: "Plectrophenax nivalis" },
+            { n: "Kornsparv", l: "Emberiza calandra" },
+            { n: "Gulsparv", l: "Emberiza citrinella" },
+            { n: "Ortolansparv", l: "Emberiza hortulana" },
+            { n: "Dvärgsparv", l: "Emberiza pusilla" },
+            { n: "Videsparv", l: "Emberiza rustica" },
+            { n: "Sävsparv", l: "Emberiza schoeniclus" },
+        ];
+
+        // State
+        const D = {}; // idx → { count, comment, flags:[] }
+        let curFilter = 'all';
+        let cmIdx = -1;
+        const STORAGE_KEY = 'faltlistan_draft';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('dateField').valueAsDate = new Date();
+            render();
+            restoreDraft();
+        });
+
+        function render() {
+            const c = document.getElementById('listContainer');
+            c.innerHTML = '';
+            let grp = '';
+            S.forEach((s, i) => {
+                if (s.g && s.g !== grp) {
+                    grp = s.g;
+                    const sec = document.createElement('div');
+                    sec.className = 'group-section';
+                    sec.dataset.group = grp;
+                    const h = document.createElement('div');
+                    h.className = 'group-header';
+                    h.textContent = grp;
+                    sec.appendChild(h);
+                    const grid = document.createElement('div');
+                    grid.className = 'species-grid';
+                    grid.id = 'grid-' + i;
+                    sec.appendChild(grid);
+                    c.appendChild(sec);
+                }
+                const grids = c.querySelectorAll('.species-grid');
+                const lastGrid = grids[grids.length - 1];
+                const el = document.createElement('div');
+                el.className = 'sp';
+                el.id = 'sp-' + i;
+                el.dataset.i = i;
+                el.dataset.n = s.n.toLowerCase();
+                el.dataset.l = s.l.toLowerCase();
+                el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${s.n}</span><span class="sp-flag">ÅK</span><span class="sp-comment-dot"></span>`;
+
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const idx = parseInt(el.dataset.i);
+                    if (D[idx]) {
+                        // Already checked → open comment modal
+                        openCM(idx);
+                    } else {
+                        // Check it
+                        D[idx] = { count: 1, comment: '', flags: [] };
+                        el.classList.add('checked');
+                        navigator.vibrate?.(15);
+                        upd();
+                    }
+                });
+                lastGrid.appendChild(el);
+            });
+        }
+
+        function openCM(idx) {
+            cmIdx = idx;
+            const s = S[idx];
+            const d = D[idx] || { count: 1, comment: '', flags: [] };
+            document.getElementById('cmName').textContent = s.n;
+            document.getElementById('cmLatin').textContent = s.l;
+            document.getElementById('cmCount').value = d.count || 1;
+            document.getElementById('cmComment').value = d.comment || '';
+            const akBtn = document.getElementById('cmFlagAK');
+            akBtn.classList.toggle('active', d.flags.includes('Årskryss'));
+            document.getElementById('cmOverlay').classList.add('visible');
+        }
+
+        function closeCM() {
+            document.getElementById('cmOverlay').classList.remove('visible');
+            cmIdx = -1;
+        }
+
+        function saveCM() {
+            if (cmIdx < 0) return;
+            if (!D[cmIdx]) D[cmIdx] = { count: 1, comment: '', flags: [] };
+            D[cmIdx].count = parseInt(document.getElementById('cmCount').value) || 1;
+            D[cmIdx].comment = document.getElementById('cmComment').value.trim();
+            const akBtn = document.getElementById('cmFlagAK');
+            if (akBtn.classList.contains('active')) {
+                if (!D[cmIdx].flags.includes('Årskryss')) D[cmIdx].flags.push('Årskryss');
+            } else {
+                D[cmIdx].flags = D[cmIdx].flags.filter(f => f !== 'Årskryss');
+            }
+            // Update visual
+            const el = document.getElementById('sp-' + cmIdx);
+            el.classList.toggle('has-comment', !!D[cmIdx].comment);
+            el.classList.toggle('has-flag', D[cmIdx].flags.length > 0);
+            closeCM();
+            upd();
+        }
+
+        function toggleCMFlag(flag, btn) {
+            btn.classList.toggle('active');
+        }
+
+        function uncheckFromCM() {
+            if (cmIdx < 0) return;
+            delete D[cmIdx];
+            const el = document.getElementById('sp-' + cmIdx);
+            el.classList.remove('checked', 'has-comment', 'has-flag');
+            closeCM();
+            upd();
+        }
+
+        function upd() {
+            const n = Object.keys(D).length;
+            document.getElementById('cnt').textContent = n;
+            document.getElementById('genBtn').disabled = n === 0;
+            saveDraft();
+        }
+
+        function setFilter(f, btn) {
+            curFilter = f;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilter();
+        }
+
+        document.getElementById('searchField').addEventListener('input', applyFilter);
+
+        function applyFilter() {
+            const q = document.getElementById('searchField').value.toLowerCase().trim();
+            let totalVisible = 0;
+            document.querySelectorAll('.sp').forEach(el => {
+                const idx = parseInt(el.dataset.i);
+                const nameOk = !q || el.dataset.n.includes(q) || el.dataset.l.includes(q);
+                const filterOk = curFilter === 'all' || (curFilter === 'checked' && D[idx]);
+                const vis = nameOk && filterOk;
+                el.classList.toggle('hidden', !vis);
+                if (vis) totalVisible++;
+            });
+            // Hide groups with no visible species
+            document.querySelectorAll('.group-section').forEach(sec => {
+                const vis = sec.querySelectorAll('.sp:not(.hidden)').length;
+                sec.style.display = vis > 0 ? '' : 'none';
+            });
+            // Show "no results" with add button
+            const nr = document.getElementById('noResults');
+            if (q && totalVisible === 0) {
+                document.getElementById('noResTerm').textContent = document.getElementById('searchField').value.trim();
+                nr.classList.add('visible');
+            } else {
+                nr.classList.remove('visible');
+            }
+        }
+
+        function addCustom() {
+            const inp = document.getElementById('addInput');
+            const name = inp.value.trim();
+            if (!name) return;
+            const idx = S.length;
+            S.push({ g: 'Tillagda', n: name, l: '' });
+
+            // Find or create "Tillagda" section
+            let sec = document.querySelector('.group-section[data-group="Tillagda"]');
+            if (!sec) {
+                sec = document.createElement('div');
+                sec.className = 'group-section'; sec.dataset.group = 'Tillagda';
+                const h = document.createElement('div');
+                h.className = 'group-header'; h.textContent = 'Tillagda arter';
+                sec.appendChild(h);
+                const grid = document.createElement('div');
+                grid.className = 'species-grid';
+                sec.appendChild(grid);
+                document.getElementById('listContainer').appendChild(sec);
+            }
+
+            const grid = sec.querySelector('.species-grid');
+            const el = document.createElement('div');
+            el.className = 'sp checked';
+            el.id = 'sp-' + idx; el.dataset.i = idx;
+            el.dataset.n = name.toLowerCase(); el.dataset.l = '';
+            el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${name}</span><span class="sp-flag">ÅK</span><span class="sp-comment-dot"></span>`;
+            el.addEventListener('click', () => { if (D[idx]) openCM(idx); else { D[idx] = { count: 1, comment: '', flags: [] }; el.classList.add('checked'); upd(); } });
+            grid.appendChild(el);
+
+            D[idx] = { count: 1, comment: '', flags: [] };
+            upd();
+            inp.value = '';
+        }
+
+        function addFromSearch() {
+            const name = document.getElementById('searchField').value.trim();
+            if (!name) return;
+            document.getElementById('addInput').value = name;
+            addCustom();
+            document.getElementById('searchField').value = '';
+            applyFilter();
+        }
+
+        function showJSON() {
+            const data = {
+                version: '1.0',
+                date: document.getElementById('dateField').value,
+                location: document.getElementById('locField').value.trim() || 'Okänd',
+                notes: document.getElementById('notesField').value.trim(),
+                species: [],
+                source: 'faltlistan'
+            };
+            Object.keys(D).sort((a, b) => a - b).forEach(i => {
+                const sp = S[i], d = D[i];
+                const e = { name: sp.n, latin: sp.l || '', count: d.count || 1, flags: d.flags || [] };
+                if (d.comment) e.comment = d.comment;
+                data.species.push(e);
+            });
+            document.getElementById('jsonOut').textContent = JSON.stringify(data, null, 4);
+            document.getElementById('jmOverlay').classList.add('visible');
+        }
+
+        function copyJSON() {
+            navigator.clipboard.writeText(document.getElementById('jsonOut').textContent).then(() => {
+                const ok = document.getElementById('copyOk');
+                ok.classList.add('visible');
+                setTimeout(() => ok.classList.remove('visible'), 2000);
+            });
+        }
+
+        function closeJM() { document.getElementById('jmOverlay').classList.remove('visible'); }
+
+        // ── localStorage auto-save ──
+        function saveDraft() {
+            try {
+                const draft = {
+                    D: D,
+                    date: document.getElementById('dateField').value,
+                    location: document.getElementById('locField').value,
+                    notes: document.getElementById('notesField').value,
+                    ts: Date.now()
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+                const t = new Date();
+                document.getElementById('savedStatus').textContent =
+                    '✓ ' + t.getHours().toString().padStart(2, '0') + ':' + t.getMinutes().toString().padStart(2, '0');
+            } catch (e) { /* quota or private mode */ }
+        }
+
+        function restoreDraft() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const draft = JSON.parse(raw);
+                const age = Date.now() - (draft.ts || 0);
+                if (age > 24 * 60 * 60 * 1000) { localStorage.removeItem(STORAGE_KEY); return; } // >24h old
+                if (!draft.D || Object.keys(draft.D).length === 0) return;
+                const mins = Math.round(age / 60000);
+                const label = mins < 60 ? mins + ' min sedan' : Math.round(mins / 60) + ' h sedan';
+                if (!confirm('Återställa utkast? (' + Object.keys(draft.D).length + ' arter, ' + label + ')')) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    return;
+                }
+                // Restore state
+                Object.assign(D, draft.D);
+                if (draft.date) document.getElementById('dateField').value = draft.date;
+                if (draft.location) document.getElementById('locField').value = draft.location;
+                if (draft.notes) document.getElementById('notesField').value = draft.notes;
+                // Update visuals
+                Object.keys(D).forEach(idx => {
+                    const el = document.getElementById('sp-' + idx);
+                    if (el) {
+                        el.classList.add('checked');
+                        el.classList.toggle('has-comment', !!D[idx].comment);
+                        el.classList.toggle('has-flag', (D[idx].flags || []).length > 0);
+                    }
+                });
+                upd();
+            } catch (e) { /* parse error */ }
+        }
+
+        // Save meta fields on change
+        ['dateField', 'locField', 'notesField'].forEach(id => {
+            document.getElementById(id).addEventListener('change', saveDraft);
+            document.getElementById(id).addEventListener('input', saveDraft);
+        });
+    </script>
+</body>
+
+</html>
