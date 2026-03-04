@@ -266,6 +266,26 @@
             display: inline;
         }
 
+        .sp-ap-badge {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #1b5e20;
+            background: #e8f5e9;
+            padding: 1px 4px;
+            border-radius: 3px;
+            flex-shrink: 0;
+            display: none;
+        }
+
+        .sp.has-ap .sp-ap-badge {
+            display: inline;
+        }
+
+        .cm-ap-toggle {
+            margin: 8px 0 4px;
+            padding: 0 12px;
+        }
+
         .sp-comment-dot {
             width: 6px;
             height: 6px;
@@ -701,11 +721,7 @@
         </div>
         <div class="meta-field"><label>Noteringar</label><textarea id="notesField"
                 placeholder="Temperatur, sällskap, platser ..."></textarea></div>
-        <label class="ap-toggle">
-            <input type="checkbox" id="apToggle">
-            <div class="ap-track"></div>
-            <span class="ap-label">Rapportera till Artportalen</span>
-        </label>
+
     </div>
 
     <div class="search-bar">
@@ -760,6 +776,11 @@
                 <label>Komm.</label>
                 <input type="text" id="cmComment" placeholder="Kön, ålder, beteende ...">
             </div>
+            <label class="ap-toggle cm-ap-toggle">
+                <input type="checkbox" id="cmApToggle">
+                <div class="ap-track"></div>
+                <span class="ap-label">Rapportera till Artportalen</span>
+            </label>
             <div class="cm-actions">
                 <button class="cm-btn uncheck" id="cmUncheck" onclick="uncheckFromCM()">Avkryssa</button>
                 <button class="cm-btn cancel" onclick="closeCM()">Avbryt</button>
@@ -1217,7 +1238,7 @@
                 el.dataset.i = i;
                 el.dataset.n = s.n.toLowerCase();
                 el.dataset.l = s.l.toLowerCase();
-                el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${s.n}</span><span class="sp-flag">ÅK</span><span class="sp-comment-dot"></span>`;
+                el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${s.n}</span><span class="sp-flag">ÅK</span><span class="sp-ap-badge" title="Rapporteras till Artportalen">AP</span><span class="sp-comment-dot"></span>`;
 
                 el.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1261,6 +1282,7 @@
             lSel.value = loc;
             const akBtn = document.getElementById('cmFlagAK');
             akBtn.classList.toggle('active', d.flags.includes('Årskryss'));
+            document.getElementById('cmApToggle').checked = !!d.ap;
             document.getElementById('cmOverlay').classList.add('visible');
         }
 
@@ -1271,10 +1293,11 @@
 
         function saveCM() {
             if (cmIdx < 0) return;
-            if (!D[cmIdx]) D[cmIdx] = { count: 1, comment: '', flags: [], location: '' };
+            if (!D[cmIdx]) D[cmIdx] = { count: 1, comment: '', flags: [], location: '', ap: false };
             D[cmIdx].count = parseInt(document.getElementById('cmCount').value) || 1;
             D[cmIdx].comment = document.getElementById('cmComment').value.trim();
             D[cmIdx].location = document.getElementById('cmLokal').value || '';
+            D[cmIdx].ap = document.getElementById('cmApToggle').checked;
             const akBtn = document.getElementById('cmFlagAK');
             if (akBtn.classList.contains('active')) {
                 if (!D[cmIdx].flags.includes('Årskryss')) D[cmIdx].flags.push('Årskryss');
@@ -1285,6 +1308,7 @@
             const el = document.getElementById('sp-' + cmIdx);
             el.classList.toggle('has-comment', !!(D[cmIdx].comment || D[cmIdx].location));
             el.classList.toggle('has-flag', D[cmIdx].flags.length > 0);
+            el.classList.toggle('has-ap', !!D[cmIdx].ap);
             closeCM();
             upd();
         }
@@ -1394,13 +1418,13 @@
                 date: document.getElementById('dateField').value,
                 location: document.getElementById('locField').value.trim() || 'Okänd',
                 notes: document.getElementById('notesField').value.trim(),
-                artportalen: document.getElementById('apToggle').checked,
                 species: [],
                 source: 'faltlistan'
             };
             Object.keys(D).sort((a, b) => a - b).forEach(i => {
                 const sp = S[i], d = D[i];
                 const e = { name: sp.n, latin: sp.l || '', count: d.count || 1, flags: d.flags || [] };
+                if (d.ap) e.artportalen = true;
                 if (d.location) e.location = d.location;
                 if (d.comment) e.comment = d.comment;
                 data.species.push(e);
@@ -1427,7 +1451,7 @@
                     date: document.getElementById('dateField').value,
                     location: document.getElementById('locField').value,
                     notes: document.getElementById('notesField').value,
-                    ap: document.getElementById('apToggle').checked,
+
                     ts: Date.now()
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
@@ -1456,7 +1480,6 @@
                 if (draft.date) document.getElementById('dateField').value = draft.date;
                 if (draft.location) document.getElementById('locField').value = draft.location;
                 if (draft.notes) document.getElementById('notesField').value = draft.notes;
-                if (draft.ap) document.getElementById('apToggle').checked = true;
                 // Update visuals
                 Object.keys(D).forEach(idx => {
                     const el = document.getElementById('sp-' + idx);
@@ -1464,6 +1487,7 @@
                         el.classList.add('checked');
                         el.classList.toggle('has-comment', !!D[idx].comment);
                         el.classList.toggle('has-flag', (D[idx].flags || []).length > 0);
+                        el.classList.toggle('has-ap', !!D[idx].ap);
                     }
                 });
                 upd();
