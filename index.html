@@ -1132,22 +1132,32 @@
         let cmIdx = -1;
         const STORAGE_KEY = 'faltlistan_draft';
 
-        // Location database (from artportalen-sites.json)
+        // Location database (from artportalen-sites.json + MASTER.csv, >3 days rule for non-Åstorp)
         const LOCS = {
-"Bjuv":["Dammen, Hjorthägnet, Maglaby","Maglaby kärr"],
-"Eslöv":["Vägbron, Hultserödsvägen"],
-"Habo":["500 meter SV Lövsjön"],
-"Helsingborg":["Kärnan Helsingborg","Raus församlingsgård","Råå camping","Råå vallar","Skogsfrugatan 5","Ymergatan"],
-"Höganäs":["County Administrative Board of Skåne, Italienska vägen, Mölle, Höganäs kommun","Stubbarp"],
-"Kiruna":["Rallarvägen"],
-"Klippan":["Dungen, ÅPK","Forsmöllan","Fält nedanför Gråmanstorps kyrka","Fält vid Galgabäcken, Gråmanstorp","Fält vid Vättinge","Järnvägsbron mellan Kvidinge och Klippan","Längs Gamla Vägen, Östra Ljungby","Stall Svensson","Tommarps eke","Tommarps ene","Vedby strövområde","Vättinge","Älvdalsgatan","Åbygården"],
-"Malmö":["Malmöhus"],
-"Skara":["Jättadalen","O 2739","O 2751"],
-"Svalöv":["Klåverödsdammen","Plattformen, Tranerödsmossen"],
-"Tidaholm":["Alm, Hömbs by"],
-"Ängelholm":["Bostället","Brandsvigs våtmark / Vattenverket","Danskasjön, Tåstarp","Gamla Backagården, Werjes ängaväg, Hjärnarp","Gräshagen","Heimdallgatan","Heliga Korsets Kapell","Längst S på Margretetorpsvägen","Nybron","Prästängen, Tåstarp","Pyttebron","Rebbelbergaskogen","Snoggarps mosse","Sockerbruksområdet","Svenstorp","Tiarp","Uppsala","Vegeholms slott","Västra Västersjön","Älvdalens industriområde","Ängelholms havsbad"],
-"Åstorp":["Backadal, Kärrarp","Badet","Björkenäs mosse","Björnekullaskolan","Bron mot Klippan","Bron vid Rönneå","Dammdungen, Kärrarp","Egnahem, Tommarp","Flodarna","Fält vid Brånnhus","Fåraböke","Gamla Tranarpsbron","Grandungen, strax N Tommarps Kungsgård","Grustagen, Maglaby","Hermanssons stuga","Högalid","Killåkravägen","Klaradal","Klövaravinen","Korsvägen, Tomarp","Kungsgårdsmaderna","Kvidinge","Kvidinge grustag","Kvidinge reningsverk","Kyrkdungen","Kölebäckens mader, V Broby","Körslätta mosse","Körslättabäckens våtmarker","Körslättaravinen","Madkärr, Tomarp","Makadambrottet","Matning, Trädgårdsgatan 15","Målarkalk, Hyllinge","NV Mosshult","PREC_POS_Rörspjäll","Prästamarken","Prästamarken, Kvidinge k:a","Prästskogen","Rönne å, Kungsgårdsmaderna","Rönne å, Tomarps mader","Rönnehillvägen/Östra Storgatan, Kvidinge","Rönnliden, Tranarp","Rörspjäll","Skjutbanan, Tommarps Ene","Stora fältet - Sånna/Egnahem/Tomarp","Syllstorp","Sånnagården","Sönnarslöv","Tomarps Ene","Tomarps kungsgård","Tomarps mader","Tomasdals vandrarhem","Tommarps ene","Tommarps mader","Tranarpsbron","Trädgårdsgatan 15","Trädgårdsgatan 15, Kvidinge","Utloppet av Röda-diket","Vändplats, V Maglabyväg","Växthusen","Vångarna","fd Askupplaget","Åstorp Ö, avfart Kärrarp från väg 21","Åstorps kommun, Fabriksgatan","Åstorps kommun, Maglaby","Östra Storgatan"]
-};
+            "Bjuv": ["Dammen, Hjorthägnet, Maglaby", "Maglaby kärr", "Maglaby kärr  Söderåsen"],
+            "Båstad": ["Grytskären", "Lervik", "Torekovs rev", "Vasaltheden"],
+            "Eslöv": ["Vägbron, Hultserödsvägen"],
+            "Falkenberg": ["Morups Tånge"],
+            "Falköping": ["Agnestadssjön, Falköping", "Almeö", "Fäholmen", "Fågeludden", "Hälsingsgården, Sätuna by", "Kärragården, Bolum", "Mönarp", "Stora Bjurum", "Sätunamaden", "Vadboden", "Vartoftasjön", "Vässtorp", "Vässtorpsviken", "Ytterberg"],
+            "Habo": ["500 meter SV Lövsjön", "Alvasjön", "Falks grav", "Svedmon"],
+            "Helsingborg": ["Hasslarps dammar", "Hittarps rev", "Kärnan Helsingborg", "Miatorp", "Raus församlingsgård", "Råå Hamn", "Råå camping", "Råå vallar", "Rögle Dammar", "Sandön", "Skogsfrugatan 5", "Ymergatan"],
+            "Hjo": ["Almnäs", "Almnäs tegelbruk/Sjöbolet", "Boda", "Fridene kyrka", "Hjo hamn", "Hjällö", "Hökensås golfbana", "Monäs", "Store bro", "Vrångebäck"],
+            "Höganäs": ["Björkerödsdammen", "County Administrative Board of Skåne, Italienska vägen, Mölle, Höganäs kommun", "Farhult", "Jonstorp", "Ornakärr", "Rönnen", "Stubbarp"],
+            "Kiruna": ["Abisko turist stn.", "Naturreservat Abisko Naturvetenskapliga station", "Rallarvägen"],
+            "Klippan": ["Dungen, ÅPK", "Forsmöllan", "Fält nedanför Gråmanstorps kyrka", "Fält vid Galgabäcken, Gråmanstorp", "Fält vid Vättinge", "Gråmanstorp", "Järnvägsbron mellan Kvidinge och Klippan", "Längs Gamla Vägen, Östra Ljungby", "Stall Svensson", "Tommarps eke", "Ugglarps Broar", "Vedby strövområde", "Vättinge", "Älvdalsgatan", "Åbygården"],
+            "Landskrona": ["Saxåns mynning"],
+            "Lidköping": ["Östra hamnen"],
+            "Lund": ["Ekologihuset"],
+            "Malmö": ["Malmöhus"],
+            "Mariestad": ["Boterstena"],
+            "Mörbylånga": ["Södra lunden", "Ölands södra udde"],
+            "Skara": ["Jättadalen", "O 2739", "O 2751"],
+            "Skövde": ["Paradissjön", "Skövde", "Södra brottet"],
+            "Svalöv": ["Klåverödsdammen", "Plattformen, Tranerödsmossen"],
+            "Tidaholm": ["Acklinga kyrka", "Alekärret", "Alm, Hömbs by", "Brokvarn", "Bryntadalen", "Bäck", "Bälteberga", "Daretorp kyrka", "Dimboholm", "Ekedalen", "Gimmenesjön", "Hellidens folkhögskola", "Hellidsberget", "Holmagården  Bäck", "Hångsdala", "Höjderna, S Folkabo", "Hökensås naturreservat", "J. A. Perssonsgatan 32", "Jonsbolet", "Kavlås", "Kavlåsskogen", "Kobonäs", "Kullö", "Kungslena", "Källefall", "Lagmansängen", "Nordvattnet", "Norra kyrkogården", "Prästgårdssjön", "Raka lina", "Ramstorp", "Stora Kleven, Hökensås", "Stora Öjasjön", "Storängen", "Strandpromenaden/Turbinhusön", "Suntak", "Sydvattnet", "Tidaholm", "Tidaholms reningsverk", "Tidans mader (N Tidaholm)", "Varvs kyrka"],
+            "Ängelholm": ["Backagården", "Borrstorp", "Bostället", "Brandsvigs våtmark / Vattenverket", "Danskasjön, Tåstarp", "Djurholmen", "Gamla Backagården, Werjes ängaväg, Hjärnarp", "Gräshagen", "Heimdallgatan", "Heliga Korsets Kapell", "Längst S på Margretetorpsvägen", "Nybron", "Prästängen, Tåstarp", "Pyttebron", "Rebbelbergaskogen", "Rössjön", "Sibirien", "Snoggarps mosse", "Sockerbruksområdet", "Svenstorp", "Tiarp", "Uppsala", "Vegeholms slott", "Vejbystrand", "Västersjön", "Västra Västersjön", "Älvdalens industriområde", "Ängelholms havsbad"],
+            "Åstorp": ["Backadal, Kärrarp", "Badet", "Björkenäs mosse", "Björnekullaskolan", "Bron mot Klippan", "Bron vid Rönneå", "Dammdungen, Kärrarp", "Egnahem, Tommarp", "Flodarna", "Fält vid Brånnhus", "Fåraböke", "Gamla Tranarpsbron", "Goentorpsgården", "Grandungen, strax N Tommarps Kungsgård", "Grustagen, Maglaby", "Gustavsfält herrgård", "Hermanssons stuga", "Hyllinge", "Högalid", "Killåkravägen", "Klaradal", "Klövaravinen", "Korsvägen, Tomarp", "Kungsgårdsmaderna", "Kvidinge", "Kvidinge grustag", "Kvidinge kyrka", "Kvidinge reningsverk", "Kyrkdungen", "Kärrarp", "Kärreberga", "Kölebäckens mader, V Broby", "Körslätta mosse", "Körslättabäckens våtmarker", "Körslättaravinen", "Körslätts gård", "Madkärr, Tomarp", "Maglaby", "Makadambrottet", "Matning, Trädgårdsgatan 15", "Målarkalk, Hyllinge", "NV Mosshult", "PREC_POS_Rörspjäll", "Prästamarken", "Prästamarken, Kvidinge k:a", "Prästskogen", "Rönne å, Kungsgårdsmaderna", "Rönne å, Tomarps mader", "Rönnehillvägen/Östra Storgatan, Kvidinge", "Rönnliden, Tranarp", "Rörspjäll", "Skjutbanan, Tommarps Ene", "Stora fältet - Sånna/Egnahem/Tomarp", "Syllstorp", "Sånna", "Sånnagården", "Sönnarslöv", "Tomarps Ene", "Tomarps kungsgård", "Tomarps mader", "Tomasdals vandrarhem", "Tommarp kungsgård", "Tommarps ene", "Tommarps mader", "Tranarpsbron", "Tranarpsbron/Dynget", "Trädgårdsgatan 15", "Trädgårdsgatan 15, Kvidinge", "Utloppet av Röda-diket", "Vändplats, V Maglabyväg", "Växthusen", "Vångarna", "fd Askupplaget", "Åstorp Ö, avfart Kärrarp från väg 21", "Åstorps kommun, Fabriksgatan", "Åstorps kommun, Maglaby", "Östra Storgatan"]
+        };
 
         // Populate kommun dropdown
         function initLocDropdowns() {
