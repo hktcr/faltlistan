@@ -758,7 +758,7 @@
                 <input type="number" id="cmCount" min="1" value="1">
                 <div style="flex:1"></div>
                 <div class="cm-flags">
-                    <div class="cm-flag" id="cmFlagAK" onclick="toggleCMFlag('Årskryss',this)">⭐ Årskryss</div>
+                    <div class="cm-flag" id="cmFlagAK" onclick="toggleCMFlag('Årskryss',this)">⭐ Åstorp-2026</div>
                 </div>
             </div>
             <div class="cm-row">
@@ -1238,7 +1238,7 @@
                 el.dataset.i = i;
                 el.dataset.n = s.n.toLowerCase();
                 el.dataset.l = s.l.toLowerCase();
-                el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${s.n}</span><span class="sp-flag">ÅK</span><span class="sp-ap-badge" title="Rapporteras till Artportalen">AP</span><span class="sp-comment-dot"></span>`;
+                el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${s.n}</span><span class="sp-flag">Å26</span><span class="sp-ap-badge" title="Rapporteras till Artportalen">AP</span><span class="sp-comment-dot"></span>`;
 
                 el.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1394,7 +1394,7 @@
             el.className = 'sp checked';
             el.id = 'sp-' + idx; el.dataset.i = idx;
             el.dataset.n = name.toLowerCase(); el.dataset.l = '';
-            el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${name}</span><span class="sp-flag">ÅK</span><span class="sp-comment-dot"></span>`;
+            el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${name}</span><span class="sp-flag">Å26</span><span class="sp-comment-dot"></span>`;
             el.addEventListener('click', () => { if (D[idx]) openCM(idx); else { D[idx] = { count: 1, comment: '', flags: [] }; el.classList.add('checked'); upd(); } });
             grid.appendChild(el);
 
