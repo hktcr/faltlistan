@@ -826,7 +826,7 @@
     </div>
 
     <script>
-                const S = [
+        const S = [
             // ── Gäss & Svanar ──
             { g: "Gäss & Svanar", n: "Knölsvan", l: "Cygnus olor" },
             { n: "Mindre sångsvan", l: "Cygnus columbianus" },
@@ -1441,10 +1441,10 @@
             document.getElementById('dateField').value = new Date().toISOString().split('T')[0];
             document.getElementById('locField').value = '';
             document.getElementById('notesField').value = '';
-            
+
 
             // Uncheck all UI elements
-            document.querySelectorAll('.sp-item.checked').forEach(el => {
+            document.querySelectorAll('.sp.checked').forEach(el => {
                 el.classList.remove('checked', 'has-comment', 'has-flag', 'has-ap');
             });
 
@@ -1543,7 +1543,7 @@
             document.getElementById(id).addEventListener('change', saveDraft);
             document.getElementById(id).addEventListener('input', saveDraft);
         });
-        
+
     </script>
 </body>
 
