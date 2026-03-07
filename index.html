@@ -460,6 +460,24 @@
             cursor: default;
         }
 
+        .clear-btn {
+            padding: 8px 18px;
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: background 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: #e5e7eb;
+        }
+
         /* ── COMMENT MODAL (centered, responsive) ── */
         .cm-overlay {
             display: none;
@@ -745,6 +763,7 @@
     <div class="footer">
         <div class="footer-count"><strong id="cnt">0</strong> arter kryssade <span class="saved-status"
                 id="savedStatus"></span></div>
+        <button class="clear-btn" id="clearBtn" onclick="clearList()">🗑️ Töm</button>
         <button class="gen-btn" id="genBtn" onclick="showJSON()" disabled>Generera</button>
     </div>
 
@@ -809,22 +828,35 @@
     <script>
         const S = [
             // ── Gäss & Svanar ──
+            { n: "Knölsvan", l: "Cygnus olor" },
+            { n: "Mindre sångsvan", l: "Cygnus columbianus" },
+            { n: "Sångsvan", l: "Cygnus cygnus" },
             { g: "Gäss & Svanar", n: "Prutgås", l: "Branta bernicla" },
             { n: "Rödhalsad gås", l: "Branta ruficollis" },
             { n: "Kanadagås", l: "Branta canadensis" },
             { n: "Vitkindad gås", l: "Branta leucopsis" },
             { n: "Stripgås", l: "Anser indicus" },
             { n: "Grågås", l: "Anser anser" },
-            { n: "Skogsgås", l: "Anser fabalis" },
-            { n: "Spetsbergsgås", l: "Anser brachyrhynchus" },
-            { n: "Bläsgås", l: "Anser albifrons" },
             { n: "Fjällgås", l: "Anser erythropus" },
-            { n: "Knölsvan", l: "Cygnus olor" },
-            { n: "Mindre sångsvan", l: "Cygnus columbianus" },
-            { n: "Sångsvan", l: "Cygnus cygnus" },
+            { n: "Bläsgås", l: "Anser albifrons" },
+            { n: "Spetsbergsgås", l: "Anser brachyrhynchus" },
+            { n: "Skogsgås", l: "Anser fabalis" },
             // ── Änder ──
             { g: "Änder", n: "Gravand", l: "Tadorna tadorna" },
             { n: "Rostand", l: "Tadorna ferruginea" },
+            { n: "Alfågel", l: "Clangula hyemalis" },
+            { n: "Alförrädare", l: "Polysticta stelleri" },
+            { n: "Praktejder", l: "Somateria spectabilis" },
+            { n: "Ejder", l: "Somateria mollissima" },
+            { n: "Sjöorre", l: "Melanitta nigra" },
+            { n: "Svärta", l: "Melanitta fusca" },
+            { n: "Knipa", l: "Bucephala clangula" },
+            { n: "Salskrake", l: "Mergellus albellus" },
+            { n: "Småskrake", l: "Mergus serrator" },
+            { n: "Storskrake", l: "Mergus merganser" },
+            { n: "Brunand", l: "Aythya ferina" },
+            { n: "Vigg", l: "Aythya fuligula" },
+            { n: "Bergand", l: "Aythya marila" },
             { n: "Årta", l: "Spatula querquedula" },
             { n: "Skedand", l: "Spatula clypeata" },
             { n: "Snatterand", l: "Mareca strepera" },
@@ -832,66 +864,64 @@
             { n: "Gräsand", l: "Anas platyrhynchos" },
             { n: "Stjärtand", l: "Anas acuta" },
             { n: "Kricka", l: "Anas crecca" },
-            { n: "Brunand", l: "Aythya ferina" },
-            { n: "Vigg", l: "Aythya fuligula" },
-            { n: "Bergand", l: "Aythya marila" },
-            { n: "Alförrädare", l: "Polysticta stelleri" },
-            { n: "Praktejder", l: "Somateria spectabilis" },
-            { n: "Ejder", l: "Somateria mollissima" },
-            { n: "Svärta", l: "Melanitta fusca" },
-            { n: "Sjöorre", l: "Melanitta nigra" },
-            { n: "Alfågel", l: "Clangula hyemalis" },
-            { n: "Knipa", l: "Bucephala clangula" },
-            { n: "Salskrake", l: "Mergellus albellus" },
-            { n: "Storskrake", l: "Mergus merganser" },
-            { n: "Småskrake", l: "Mergus serrator" },
             // ── Hönsfåglar ──
-            { g: "Hönsfåglar", n: "Fasan", l: "Phasianus colchicus" },
-            { n: "Rapphöna", l: "Perdix perdix" },
-            { n: "Vaktel", l: "Coturnix coturnix" },
             { n: "Järpe", l: "Tetrastes bonasia" },
+            { n: "Fjällripa", l: "Lagopus muta" },
+            { n: "Dalripa", l: "Lagopus lagopus" },
             { n: "Tjäder", l: "Tetrao urogallus" },
             { n: "Orre", l: "Lyrurus tetrix" },
-            { n: "Dalripa", l: "Lagopus lagopus" },
-            { n: "Fjällripa", l: "Lagopus muta" },
+            { n: "Rapphöna", l: "Perdix perdix" },
+            { g: "Hönsfåglar", n: "Fasan", l: "Phasianus colchicus" },
+            { n: "Vaktel", l: "Coturnix coturnix" },
             // ── Doppingar ──
             { g: "Doppingar", n: "Smådopping", l: "Tachybaptus ruficollis" },
-            { n: "Skäggdopping", l: "Podiceps cristatus" },
-            { n: "Gråhakedopping", l: "Podiceps grisegena" },
             { n: "Svarthakedopping", l: "Podiceps auritus" },
+            { n: "Gråhakedopping", l: "Podiceps grisegena" },
+            { n: "Skäggdopping", l: "Podiceps cristatus" },
             { n: "Svarthalsad dopping", l: "Podiceps nigricollis" },
             // ── Duvor ──
-            { g: "Duvor", n: "Klippduva (tamduva)", l: "Columba livia" },
-            { n: "Skogsduva", l: "Columba oenas" },
-            { n: "Ringduva", l: "Columba palumbus" },
             { n: "Turturduva", l: "Streptopelia turtur" },
             { n: "Turkduva", l: "Streptopelia decaocto" },
+            { n: "Ringduva", l: "Columba palumbus" },
+            { g: "Duvor", n: "Klippduva (tamduva)", l: "Columba livia" },
+            { n: "Skogsduva", l: "Columba oenas" },
             // ── Nattskärror & Seglare & Gökar ──
+            { n: "Gök", l: "Cuculus canorus" },
             { g: "Nattskärror · Seglare · Gökar", n: "Nattskärra", l: "Caprimulgus europaeus" },
             { n: "Tornseglare", l: "Apus apus" },
-            { n: "Gök", l: "Cuculus canorus" },
             // ── Rallar ──
             { g: "Rallar", n: "Vattenrall", l: "Rallus aquaticus" },
             { n: "Kornknarr", l: "Crex crex" },
-            { n: "Småfläckig sumphöna", l: "Zapornia parva" },
             { n: "Rörhöna", l: "Gallinula chloropus" },
             { n: "Sothöna", l: "Fulica atra" },
+            { n: "Småfläckig sumphöna", l: "Zapornia parva" },
             // ── Tranor ──
             { g: "Tranor", n: "Trana", l: "Grus grus" },
             // ── Vadare ──
-            { g: "Vadare", n: "Strandskata", l: "Haematopus ostralegus" },
             { n: "Skärfläcka", l: "Recurvirostra avosetta" },
-            { n: "Tofsvipa", l: "Vanellus vanellus" },
-            { n: "Ljungpipare", l: "Pluvialis apricaria" },
+            { g: "Vadare", n: "Strandskata", l: "Haematopus ostralegus" },
             { n: "Kustpipare", l: "Pluvialis squatarola" },
-            { n: "Större strandpipare", l: "Charadrius hiaticula" },
-            { n: "Mindre strandpipare", l: "Charadrius dubius" },
-            { n: "Svartbent strandpipare", l: "Charadrius alexandrinus" },
+            { n: "Ljungpipare", l: "Pluvialis apricaria" },
             { n: "Fjällpipare", l: "Eudromias morinellus" },
+            { n: "Större strandpipare", l: "Charadrius hiaticula" },
+            { n: "Tofsvipa", l: "Vanellus vanellus" },
             { n: "Småspov", l: "Numenius phaeopus" },
             { n: "Storspov", l: "Numenius arquata" },
             { n: "Myrspov", l: "Limosa lapponica" },
             { n: "Rödspov", l: "Limosa limosa" },
+            { n: "Dvärgbeckasin", l: "Lymnocryptes minimus" },
+            { n: "Morkulla", l: "Scolopax rusticola" },
+            { n: "Dubbelbeckasin", l: "Gallinago media" },
+            { n: "Enkelbeckasin", l: "Gallinago gallinago" },
+            { n: "Drillsnäppa", l: "Actitis hypoleucos" },
+            { n: "Brednäbbad simsnäppa", l: "Phalaropus fulicarius" },
+            { n: "Smalsnäppa", l: "Phalaropus lobatus" },
+            { n: "Skogssnäppa", l: "Tringa ochropus" },
+            { n: "Dammsnäppa", l: "Tringa stagnatilis" },
+            { n: "Grönbena", l: "Tringa glareola" },
+            { n: "Rödbena", l: "Tringa totanus" },
+            { n: "Svartsnäppa", l: "Tringa erythropus" },
+            { n: "Gluttsnäppa", l: "Tringa nebularia" },
             { n: "Roskarl", l: "Arenaria interpres" },
             { n: "Kustsnäppa", l: "Calidris canutus" },
             { n: "Brushane", l: "Calidris pugnax" },
@@ -901,122 +931,111 @@
             { n: "Sandlöpare", l: "Calidris alba" },
             { n: "Kärrsnäppa", l: "Calidris alpina" },
             { n: "Skärsnäppa", l: "Calidris maritima" },
-            { n: "Småsnäppa", l: "Calidris minuta" },
             { n: "Tuvsnäppa", l: "Calidris melanotos" },
-            { n: "Morkulla", l: "Scolopax rusticola" },
-            { n: "Dvärgbeckasin", l: "Lymnocryptes minimus" },
-            { n: "Dubbelbeckasin", l: "Gallinago media" },
-            { n: "Enkelbeckasin", l: "Gallinago gallinago" },
-            { n: "Smalsnäppa", l: "Phalaropus lobatus" },
-            { n: "Brednäbbad simsnäppa", l: "Phalaropus fulicarius" },
-            { n: "Drillsnäppa", l: "Actitis hypoleucos" },
-            { n: "Skogssnäppa", l: "Tringa ochropus" },
-            { n: "Rödbena", l: "Tringa totanus" },
-            { n: "Dammsnäppa", l: "Tringa stagnatilis" },
-            { n: "Grönbena", l: "Tringa glareola" },
-            { n: "Svartsnäppa", l: "Tringa erythropus" },
-            { n: "Gluttsnäppa", l: "Tringa nebularia" },
+            { n: "Småsnäppa", l: "Calidris minuta" },
+            { n: "Mindre strandpipare", l: "Charadrius dubius" },
+            { n: "Svartbent strandpipare", l: "Charadrius alexandrinus" },
             // ── Måsar & Trutar ──
+            { n: "Dvärgmås", l: "Hydrocoloeus minutus" },
             { g: "Måsar & Trutar", n: "Tretåig mås", l: "Rissa tridactyla" },
             { n: "Tärnmås", l: "Xema sabini" },
             { n: "Skrattmås", l: "Chroicocephalus ridibundus" },
-            { n: "Dvärgmås", l: "Hydrocoloeus minutus" },
             { n: "Svarthuvad mås", l: "Ichthyaetus melanocephalus" },
             { n: "Fiskmås", l: "Larus canus" },
+            { n: "Kaspisk trut", l: "Larus cachinnans" },
+            { n: "Gråtrut", l: "Larus argentatus" },
+            { n: "Medelhavstrut", l: "Larus michahellis" },
             { n: "Havstrut", l: "Larus marinus" },
             { n: "Vittrut", l: "Larus hyperboreus" },
-            { n: "Vitvingad trut", l: "Larus glaucoides" },
-            { n: "Gråtrut", l: "Larus argentatus" },
-            { n: "Kaspisk trut", l: "Larus cachinnans" },
-            { n: "Medelhavstrut", l: "Larus michahellis" },
             { n: "Silltrut", l: "Larus fuscus" },
+            { n: "Vitvingad trut", l: "Larus glaucoides" },
             // ── Tärnor ──
-            { g: "Tärnor", n: "Skräntärna", l: "Hydroprogne caspia" },
-            { n: "Kentsk tärna", l: "Thalasseus sandvicensis" },
             { n: "Småtärna", l: "Sternula albifrons" },
-            { n: "Fisktärna", l: "Sterna hirundo" },
-            { n: "Silvertärna", l: "Sterna paradisaea" },
+            { g: "Tärnor", n: "Skräntärna", l: "Hydroprogne caspia" },
             { n: "Vitvingad tärna", l: "Chlidonias leucopterus" },
             { n: "Svarttärna", l: "Chlidonias niger" },
+            { n: "Kentsk tärna", l: "Thalasseus sandvicensis" },
+            { n: "Silvertärna", l: "Sterna paradisaea" },
+            { n: "Fisktärna", l: "Sterna hirundo" },
             // ── Labbar ──
-            { g: "Labbar", n: "Storlabb", l: "Stercorarius skua" },
-            { n: "Bredstjärtad labb", l: "Stercorarius pomarinus" },
             { n: "Kustlabb", l: "Stercorarius parasiticus" },
             { n: "Fjällabb", l: "Stercorarius longicaudus" },
+            { n: "Bredstjärtad labb", l: "Stercorarius pomarinus" },
+            { g: "Labbar", n: "Storlabb", l: "Stercorarius skua" },
             // ── Alkfåglar ──
+            { n: "Lunnefågel", l: "Fratercula arctica" },
+            { n: "Tobisgrissla", l: "Cepphus grylle" },
+            { n: "Tordmule", l: "Alca torda" },
             { g: "Alkfåglar", n: "Alkekung", l: "Alle alle" },
             { n: "Sillgrissla", l: "Uria aalge" },
-            { n: "Tordmule", l: "Alca torda" },
-            { n: "Tobisgrissla", l: "Cepphus grylle" },
-            { n: "Lunnefågel", l: "Fratercula arctica" },
             // ── Lommar ──
             { g: "Lommar", n: "Smålom", l: "Gavia stellata" },
-            { n: "Storlom", l: "Gavia arctica" },
             { n: "Svartnäbbad islom", l: "Gavia immer" },
             { n: "Vitnäbbad islom", l: "Gavia adamsii" },
+            { n: "Storlom", l: "Gavia arctica" },
             // ── Havsfåglar ──
             { g: "Havsfåglar", n: "Klykstjärtad stormsvala", l: "Oceanodroma leucorhoa" },
             { n: "Stormfågel", l: "Fulmarus glacialis" },
-            { n: "Grålira", l: "Puffinus griseus" },
             { n: "Mindre lira", l: "Puffinus puffinus" },
+            { n: "Grålira", l: "Puffinus griseus" },
             // ── Storkar ──
             { g: "Storkar", n: "Svart stork", l: "Ciconia nigra" },
             { n: "Vit stork", l: "Ciconia ciconia" },
             // ── Sulor & Skarvar ──
             { g: "Sulor · Skarvar · Hägrar", n: "Havssula", l: "Morus bassanus" },
-            { n: "Storskarv", l: "Phalacrocorax carbo" },
             { n: "Toppskarv", l: "Gulosus aristotelis" },
+            { n: "Storskarv", l: "Phalacrocorax carbo" },
             { n: "Rördrom", l: "Botaurus stellaris" },
-            { n: "Gråhäger", l: "Ardea cinerea" },
-            { n: "Ägretthäger", l: "Ardea alba" },
             { n: "Silkeshäger", l: "Egretta garzetta" },
+            { n: "Ägretthäger", l: "Ardea alba" },
+            { n: "Gråhäger", l: "Ardea cinerea" },
             // ── Rovfåglar ──
             { g: "Rovfåglar", n: "Fiskgjuse", l: "Pandion haliaetus" },
             { n: "Bivråk", l: "Pernis apivorus" },
             { n: "Kungsörn", l: "Aquila chrysaetos" },
             { n: "Sparvhök", l: "Accipiter nisus" },
             { n: "Duvhök", l: "Accipiter gentilis" },
-            { n: "Brun kärrhök", l: "Circus aeruginosus" },
             { n: "Blå kärrhök", l: "Circus cyaneus" },
             { n: "Ängshök", l: "Circus pygargus" },
+            { n: "Brun kärrhök", l: "Circus aeruginosus" },
             { n: "Röd glada", l: "Milvus milvus" },
             { n: "Brun glada", l: "Milvus migrans" },
             { n: "Havsörn", l: "Haliaeetus albicilla" },
             { n: "Fjällvråk", l: "Buteo lagopus" },
             { n: "Ormvråk", l: "Buteo buteo" },
             // ── Ugglor ──
+            { n: "Pärlugla", l: "Aegolius funereus" },
+            { n: "Hökuggla", l: "Surnia ulula" },
+            { n: "Sparvuggla", l: "Glaucidium passerinum" },
+            { n: "Jorduggla", l: "Asio flammeus" },
+            { n: "Hornuggla", l: "Asio otus" },
             { g: "Ugglor", n: "Berguv", l: "Bubo bubo" },
             { n: "Kattuggla", l: "Strix aluco" },
             { n: "Slaguggla", l: "Strix uralensis" },
             { n: "Lappuggla", l: "Strix nebulosa" },
-            { n: "Hökuggla", l: "Surnia ulula" },
-            { n: "Sparvuggla", l: "Glaucidium passerinum" },
-            { n: "Pärlugla", l: "Aegolius funereus" },
-            { n: "Hornuggla", l: "Asio otus" },
-            { n: "Jorduggla", l: "Asio flammeus" },
             // ── Kungsfiskare · Härfågel · Biätare ──
             { g: "Kungsfiskare · Härfågel", n: "Härfågel", l: "Upupa epops" },
-            { n: "Kungsfiskare", l: "Alcedo atthis" },
             { n: "Biätare", l: "Merops apiaster" },
+            { n: "Kungsfiskare", l: "Alcedo atthis" },
             // ── Hackspettar ──
             { g: "Hackspettar", n: "Göktyta", l: "Jynx torquilla" },
-            { n: "Tretåig hackspett", l: "Picoides tridactylus" },
-            { n: "Mindre hackspett", l: "Dryobates minor" },
-            { n: "Större hackspett", l: "Dendrocopos major" },
-            { n: "Vitryggig hackspett", l: "Dendrocopos leucotos" },
-            { n: "Spillkråka", l: "Dryocopus martius" },
-            { n: "Gröngöling", l: "Picus viridis" },
             { n: "Gråspett", l: "Picus canus" },
+            { n: "Gröngöling", l: "Picus viridis" },
+            { n: "Spillkråka", l: "Dryocopus martius" },
+            { n: "Tretåig hackspett", l: "Picoides tridactylus" },
+            { n: "Vitryggig hackspett", l: "Dendrocopos leucotos" },
+            { n: "Större hackspett", l: "Dendrocopos major" },
+            { n: "Mindre hackspett", l: "Dryobates minor" },
             // ── Falkar ──
             { g: "Falkar", n: "Tornfalk", l: "Falco tinnunculus" },
             { n: "Aftonfalk", l: "Falco vespertinus" },
             { n: "Stenfalk", l: "Falco columbarius" },
             { n: "Lärkfalk", l: "Falco subbuteo" },
-            { n: "Jaktfalk", l: "Falco rusticolus" },
             { n: "Pilgrimsfalk", l: "Falco peregrinus" },
+            { n: "Jaktfalk", l: "Falco rusticolus" },
             // ── Törnskator ──
-            { g: "Törnskator", n: "Törnskata", l: "Lanius collurio" },
             { n: "Varfågel", l: "Lanius excubitor" },
+            { g: "Törnskator", n: "Törnskata", l: "Lanius collurio" },
             // ── Kråkfåglar ──
             { g: "Kråkfåglar", n: "Sommargylling", l: "Oriolus oriolus" },
             { n: "Lavskrika", l: "Perisoreus infaustus" },
@@ -1025,20 +1044,20 @@
             { n: "Nötkråka", l: "Nucifraga caryocatactes" },
             { n: "Kaja", l: "Coloeus monedula" },
             { n: "Råka", l: "Corvus frugilegus" },
-            { n: "Gråkråka", l: "Corvus cornix" },
             { n: "Korp", l: "Corvus corax" },
+            { n: "Gråkråka", l: "Corvus cornix" },
             // ── Mesar ──
-            { g: "Mesar & Svansar", n: "Stjärtmes", l: "Aegithalos caudatus" },
-            { n: "Sidensvans", l: "Bombycilla garrulus" },
+            { n: "Pungmes", l: "Remiz pendulinus" },
+            { n: "Blåmes", l: "Cyanistes caeruleus" },
+            { n: "Talgoxe", l: "Parus major" },
             { n: "Svartmes", l: "Periparus ater" },
             { n: "Tofsmes", l: "Lophophanes cristatus" },
             { n: "Entita", l: "Poecile palustris" },
             { n: "Talltita", l: "Poecile montanus" },
             { n: "Lappmes", l: "Poecile cinctus" },
-            { n: "Blåmes", l: "Cyanistes caeruleus" },
-            { n: "Talgoxe", l: "Parus major" },
-            { n: "Pungmes", l: "Remiz pendulinus" },
             { n: "Skäggmes", l: "Panurus biarmicus" },
+            { g: "Mesar & Svansar", n: "Stjärtmes", l: "Aegithalos caudatus" },
+            { n: "Sidensvans", l: "Bombycilla garrulus" },
             // ── Lärkor ──
             { g: "Lärkor", n: "Trädlärka", l: "Lullula arborea" },
             { n: "Sånglärka", l: "Alauda arvensis" },
@@ -1050,11 +1069,15 @@
             { n: "Hussvala", l: "Delichon urbicum" },
             { n: "Rostgumpsvala", l: "Cecropis daurica" },
             // ── Sångare ──
-            { g: "Sångare", n: "Höksångare", l: "Curruca nisoria" },
-            { n: "Ärtsångare", l: "Curruca curruca" },
-            { n: "Törnsångare", l: "Curruca communis" },
-            { n: "Svarthätta", l: "Sylvia atricapilla" },
-            { n: "Trädgårdssångare", l: "Sylvia borin" },
+            { n: "Härmsångare", l: "Hippolais icterina" },
+            { n: "Sävsångare", l: "Acrocephalus schoenobaenus" },
+            { n: "Busksångare", l: "Acrocephalus dumetorum" },
+            { n: "Kärrsångare", l: "Acrocephalus palustris" },
+            { n: "Rörsångare", l: "Acrocephalus scirpaceus" },
+            { n: "Trastsångare", l: "Acrocephalus arundinaceus" },
+            { n: "Flodsångare", l: "Locustella fluviatilis" },
+            { n: "Vassångare", l: "Locustella luscinioides" },
+            { n: "Gräshoppsångare", l: "Locustella naevia" },
             { n: "Grönsångare", l: "Phylloscopus sibilatrix" },
             { n: "Taigasångare", l: "Phylloscopus inornatus" },
             { n: "Kungsfågelsångare", l: "Phylloscopus proregulus" },
@@ -1062,39 +1085,35 @@
             { n: "Gransångare", l: "Phylloscopus collybita" },
             { n: "Lundsångare", l: "Phylloscopus trochiloides" },
             { n: "Nordsångare", l: "Phylloscopus borealis" },
-            { n: "Trastsångare", l: "Acrocephalus arundinaceus" },
-            { n: "Sävsångare", l: "Acrocephalus schoenobaenus" },
-            { n: "Busksångare", l: "Acrocephalus dumetorum" },
-            { n: "Rörsångare", l: "Acrocephalus scirpaceus" },
-            { n: "Kärrsångare", l: "Acrocephalus palustris" },
-            { n: "Härmsångare", l: "Hippolais icterina" },
-            { n: "Flodsångare", l: "Locustella fluviatilis" },
-            { n: "Vassångare", l: "Locustella luscinioides" },
-            { n: "Gräshoppsångare", l: "Locustella naevia" },
+            { n: "Trädgårdssångare", l: "Sylvia borin" },
+            { n: "Svarthätta", l: "Sylvia atricapilla" },
+            { g: "Sångare", n: "Höksångare", l: "Curruca nisoria" },
+            { n: "Ärtsångare", l: "Curruca curruca" },
+            { n: "Törnsångare", l: "Curruca communis" },
             // ── Kungsfåglar ──
             { g: "Kungsfåglar", n: "Brandkronad kungsfågel", l: "Regulus ignicapilla" },
             { n: "Kungsfågel", l: "Regulus regulus" },
             // ── Nötväckor & Trädkrypare ──
-            { g: "Nötväcka · Trädkrypare · Gärdsmyg", n: "Gärdsmyg", l: "Troglodytes troglodytes" },
             { n: "Nötväcka", l: "Sitta europaea" },
             { n: "Trädkrypare", l: "Certhia familiaris" },
+            { g: "Nötväcka · Trädkrypare · Gärdsmyg", n: "Gärdsmyg", l: "Troglodytes troglodytes" },
             // ── Stare ──
             { g: "Starar", n: "Stare", l: "Sturnus vulgaris" },
             // ── Trastar ──
-            { g: "Trastar", n: "Ringtrast", l: "Turdus torquatus" },
+            { n: "Dubbeltrast", l: "Turdus viscivorus" },
+            { n: "Taltrast", l: "Turdus philomelos" },
+            { n: "Rödvingetrast", l: "Turdus iliacus" },
             { n: "Koltrast", l: "Turdus merula" },
             { n: "Björktrast", l: "Turdus pilaris" },
-            { n: "Rödvingetrast", l: "Turdus iliacus" },
-            { n: "Taltrast", l: "Turdus philomelos" },
-            { n: "Dubbeltrast", l: "Turdus viscivorus" },
+            { g: "Trastar", n: "Ringtrast", l: "Turdus torquatus" },
             // ── Flugsnappare & Chats ──
             { g: "Flugsnappare · Näktergalar", n: "Grå flugsnappare", l: "Muscicapa striata" },
             { n: "Rödhake", l: "Erithacus rubecula" },
-            { n: "Blåhake", l: "Luscinia svecica" },
             { n: "Näktergal", l: "Luscinia luscinia" },
-            { n: "Svartvit flugsnappare", l: "Ficedula hypoleuca" },
-            { n: "Halsbandsflugsnappare", l: "Ficedula albicollis" },
+            { n: "Blåhake", l: "Luscinia svecica" },
             { n: "Mindre flugsnappare", l: "Ficedula parva" },
+            { n: "Halsbandsflugsnappare", l: "Ficedula albicollis" },
+            { n: "Svartvit flugsnappare", l: "Ficedula hypoleuca" },
             { n: "Svart rödstjärt", l: "Phoenicurus ochruros" },
             { n: "Rödstjärt", l: "Phoenicurus phoenicurus" },
             { n: "Buskskvätta", l: "Saxicola rubetra" },
@@ -1103,48 +1122,48 @@
             // ── Strömstare ──
             { g: "Strömstarar", n: "Strömstare", l: "Cinclus cinclus" },
             // ── Sparvar ──
-            { g: "Sparvar", n: "Gråsparv", l: "Passer domesticus" },
             { n: "Pilfink", l: "Passer montanus" },
+            { g: "Sparvar", n: "Gråsparv", l: "Passer domesticus" },
             // ── Ärlor & Piplärkor ──
             { g: "Ärlor & Piplärkor", n: "Järnsparv", l: "Prunella modularis" },
+            { n: "Forsärla", l: "Motacilla cinerea" },
             { n: "Gulärla", l: "Motacilla flava" },
             { n: "Citronärla", l: "Motacilla citreola" },
-            { n: "Forsärla", l: "Motacilla cinerea" },
             { n: "Sädesärla", l: "Motacilla alba" },
-            { n: "Större piplärka", l: "Anthus richardi" },
             { n: "Fältpiplärka", l: "Anthus campestris" },
-            { n: "Ängspiplärka", l: "Anthus pratensis" },
+            { n: "Större piplärka", l: "Anthus richardi" },
             { n: "Trädpiplärka", l: "Anthus trivialis" },
             { n: "Rödstrupig piplärka", l: "Anthus cervinus" },
-            { n: "Vattenpiplärka", l: "Anthus spinoletta" },
+            { n: "Ängspiplärka", l: "Anthus pratensis" },
             { n: "Skärpiplärka", l: "Anthus petrosus" },
+            { n: "Vattenpiplärka", l: "Anthus spinoletta" },
             // ── Finkar ──
-            { g: "Finkar", n: "Bofink", l: "Fringilla coelebs" },
             { n: "Bergfink", l: "Fringilla montifringilla" },
+            { g: "Finkar", n: "Bofink", l: "Fringilla coelebs" },
             { n: "Stenknäck", l: "Coccothraustes coccothraustes" },
+            { n: "Rosenfink", l: "Carpodacus erythrinus" },
             { n: "Tallbit", l: "Pinicola enucleator" },
             { n: "Domherre", l: "Pyrrhula pyrrhula" },
-            { n: "Rosenfink", l: "Carpodacus erythrinus" },
             { n: "Grönfink", l: "Chloris chloris" },
             { n: "Vinterhämpling", l: "Linaria flavirostris" },
             { n: "Hämpling", l: "Linaria cannabina" },
             { n: "Gråsiska", l: "Acanthis flammea" },
-            { n: "Snösiska", l: "Acanthis hornemanni" },
+            { n: "Bändelkorsnäbb", l: "Loxia leucoptera" },
             { n: "Större korsnäbb", l: "Loxia pytyopsittacus" },
             { n: "Mindre korsnäbb", l: "Loxia curvirostra" },
-            { n: "Bändelkorsnäbb", l: "Loxia leucoptera" },
             { n: "Steglits", l: "Carduelis carduelis" },
             { n: "Gulhämpling", l: "Serinus serinus" },
             { n: "Grönsiska", l: "Spinus spinus" },
+            { n: "Snösiska", l: "Acanthis hornemanni" },
             // ── Fältsparvfåglar ──
-            { g: "Fältsparvfåglar", n: "Lappsparv", l: "Calcarius lapponicus" },
             { n: "Snösparv", l: "Plectrophenax nivalis" },
-            { n: "Kornsparv", l: "Emberiza calandra" },
-            { n: "Gulsparv", l: "Emberiza citrinella" },
-            { n: "Ortolansparv", l: "Emberiza hortulana" },
+            { g: "Fältsparvfåglar", n: "Lappsparv", l: "Calcarius lapponicus" },
+            { n: "Sävsparv", l: "Emberiza schoeniclus" },
             { n: "Dvärgsparv", l: "Emberiza pusilla" },
             { n: "Videsparv", l: "Emberiza rustica" },
-            { n: "Sävsparv", l: "Emberiza schoeniclus" },
+            { n: "Kornsparv", l: "Emberiza calandra" },
+            { n: "Ortolansparv", l: "Emberiza hortulana" },
+            { n: "Gulsparv", l: "Emberiza citrinella" }
         ];
 
         // State
@@ -1410,6 +1429,31 @@
             addCustom();
             document.getElementById('searchField').value = '';
             applyFilter();
+        }
+
+        function clearList() {
+            if (!confirm('Är du säker på att du vill rensa hela listan och ta bort ditt utkast?')) return;
+
+            // Clear data dictionary
+            for (let k in D) delete D[k];
+
+            // Clear inputs
+            document.getElementById('dateField').value = new Date().toISOString().split('T')[0];
+            document.getElementById('locField').value = '';
+            document.getElementById('notesField').value = '';
+            document.getElementById('apToggle').checked = false;
+
+            // Uncheck all UI elements
+            document.querySelectorAll('.sp-item.checked').forEach(el => {
+                el.classList.remove('checked', 'has-comment', 'has-flag', 'has-ap');
+            });
+
+            // Remove from localStorage
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+            document.getElementById('savedStatus').textContent = '';
+
+            // Update counts & buttons
+            upd();
         }
 
         function showJSON() {
