@@ -238,17 +238,35 @@
             opacity: 1;
         }
 
+        .sp-names {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
         .sp-name {
             font-size: 0.78rem;
             font-weight: 400;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            flex: 1;
         }
 
         .sp.checked .sp-name {
             font-weight: 500;
+        }
+
+        .sp-latin {
+            font-size: 0.62rem;
+            font-style: italic;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            line-height: 1.2;
+            margin-top: -1px;
         }
 
         .sp-flag {
@@ -1257,7 +1275,8 @@
                 el.dataset.i = i;
                 el.dataset.n = s.n.toLowerCase();
                 el.dataset.l = s.l.toLowerCase();
-                el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="sp-name">${s.n}</span><span class="sp-flag">Å26</span><span class="sp-ap-badge" title="Rapporteras till Artportalen">AP</span><span class="sp-comment-dot"></span>`;
+                el.dataset.g = grp.toLowerCase();
+                el.innerHTML = `<div class="sp-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sp-names"><span class="sp-name">${s.n}</span><span class="sp-latin">${s.l}</span></div><span class="sp-flag">Å26</span><span class="sp-ap-badge" title="Rapporteras till Artportalen">AP</span><span class="sp-comment-dot"></span>`;
 
                 el.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1366,7 +1385,7 @@
             let totalVisible = 0;
             document.querySelectorAll('.sp').forEach(el => {
                 const idx = parseInt(el.dataset.i);
-                const nameOk = !q || el.dataset.n.includes(q) || el.dataset.l.includes(q);
+                const nameOk = !q || el.dataset.n.includes(q) || el.dataset.l.includes(q) || (el.dataset.g && el.dataset.g.includes(q));
                 const filterOk = curFilter === 'all' || (curFilter === 'checked' && D[idx]);
                 const vis = nameOk && filterOk;
                 el.classList.toggle('hidden', !vis);
