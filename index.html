@@ -317,6 +317,62 @@
             display: block;
         }
 
+        /* ── ÅSTORP GLOBAL TOGGLE ── */
+        .astorp-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .astorp-toggle input[type="checkbox"] {
+            display: none;
+        }
+
+        .astorp-track {
+            width: 36px;
+            height: 20px;
+            border-radius: 10px;
+            background: #ccc;
+            position: relative;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .astorp-track::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.2s;
+        }
+
+        .astorp-toggle input:checked + .astorp-track {
+            background: #e65100;
+        }
+
+        .astorp-toggle input:checked + .astorp-track::after {
+            transform: translateX(16px);
+        }
+
+        .astorp-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .astorp-toggle input:checked ~ .astorp-label {
+            color: #e65100;
+            font-weight: 600;
+        }
+
         /* ── NO RESULTS ── */
         .no-results {
             display: none;
@@ -757,6 +813,11 @@
         </div>
         <div class="meta-field"><label>Noteringar</label><textarea id="notesField"
                 placeholder="Temperatur, sällskap, platser ..."></textarea></div>
+        <label class="astorp-toggle">
+            <input type="checkbox" id="astorpToggle">
+            <div class="astorp-track"></div>
+            <span class="astorp-label">🏠 Åstorp-2026</span>
+        </label>
 
     </div>
 
@@ -1484,6 +1545,9 @@
                 species: [],
                 source: 'faltlistan'
             };
+            if (document.getElementById('astorpToggle').checked) {
+                data.astorp2026 = true;
+            }
             Object.keys(D).sort((a, b) => a - b).forEach(i => {
                 const sp = S[i], d = D[i];
                 const e = { name: sp.n, latin: sp.l || '', count: d.count || 1, flags: d.flags || [] };
@@ -1514,7 +1578,7 @@
                     date: document.getElementById('dateField').value,
                     location: document.getElementById('locField').value,
                     notes: document.getElementById('notesField').value,
-
+                    astorp2026: document.getElementById('astorpToggle').checked,
                     ts: Date.now()
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
@@ -1543,6 +1607,7 @@
                 if (draft.date) document.getElementById('dateField').value = draft.date;
                 if (draft.location) document.getElementById('locField').value = draft.location;
                 if (draft.notes) document.getElementById('notesField').value = draft.notes;
+                if (draft.astorp2026) document.getElementById('astorpToggle').checked = true;
                 // Update visuals
                 Object.keys(D).forEach(idx => {
                     const el = document.getElementById('sp-' + idx);
@@ -1562,6 +1627,7 @@
             document.getElementById(id).addEventListener('change', saveDraft);
             document.getElementById(id).addEventListener('input', saveDraft);
         });
+        document.getElementById('astorpToggle').addEventListener('change', saveDraft);
 
     </script>
 </body>
